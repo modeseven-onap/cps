@@ -44,15 +44,18 @@ runs:
       run: |
         # 🔍 Parse TOX configuration file
 
+        set -o pipefail
+        set -xv
+
         PYTHON_CMD=$(which python)
-        if [ ! -x $PYTHON_CMD ]; then
+        if [ ! -x "$PYTHON_CMD" ]; then
           echo "Unable to run Python command ❌"
           echo "Call setup-python before calling"
           exit 1
         fi
 
         TOX_CMD=$(which tox)
-        if [ ! -x $TOX_CMD ]; then
+        if [ ! -x "$TOX_CMD" ]; then
           "$PYTHON_CMD" -m venv /tmp/tox
           if ! (pip install --upgrade --disable-pip-version-check -q tox > /dev/null); then
             echo "Unable to use pip to install tox command ❌"; exit 1
@@ -68,7 +71,7 @@ runs:
         fi
         set -o noglob
         AWK_ARGS="${{ inputs.AWK_ARGS }}"
-        SED_ARGS="sed ${{ inputs.SED_ARGS }}"
+        SED_ARGS="${{ inputs.SED_ARGS }}"
         set +o noglob
 
         # Build shell command
@@ -76,19 +79,19 @@ runs:
         TOX_COMMAND="$TOX_CMD config -c ${{ inputs.TOX_CONFIG_PATH }} $TOX_ENV_STRING"
         echo "TOX command: $TOX_COMMAND"
         TOX_OUTPUT=$($TOX_COMMAND)
-
+        echo "Tox returned: $TOX_OUTPUT ✅"
         if [ -n "$AWK_ARGS" ]; then
-          RETURN_VALUE=$(echo "$TOX_OUTPUT" | awk $AWK_ARGS)
+          RETURN_VALUE=$(echo "$TOX_OUTPUT" | awk "$AWK_ARGS")
         fi
         if [ -n "$SED_ARGS" ]; then
-          RETURN_VALUE=$(echo "$RETURN_VALUE" | sed $SED_ARGS)
+          RETURN_VALUE=$(echo "$RETURN_VALUE" | sed "$SED_ARGS")
         fi
 
         # Report/return results
         if [ -z "$RETURN_VALUE" ]; then
           echo "Query failed; empty return value ❌"
         else
-          echo "Returning value: $RETURN_VALUE ✅"
+          echo "Value: $RETURN_VALUE ✅"
         fi
         echo "tox_value=$RETURN_VALUE" >> "$GITHUB_ENV"
         echo "tox_value=$RETURN_VALUE" >> "$GITHUB_OUTPUT"
