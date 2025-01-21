@@ -56,14 +56,14 @@ jobs:
       # yamllint disable-line rule:line-length
       - uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c # v5.0.0
         id: setup-python-from-tox
-        if: steps.python-version-from-tox.outputs.tox_value != ""
+        if: ${{ steps.python-version-from-tox.outputs.tox_value }} != ''
         with:
           python-version: ${{ steps.python-version-from-tox.outputs.tox_value }}
 
       # yamllint disable-line rule:line-length
       - uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c # v5.0.0
         id: setup-default-python
-        if: steps.python-version-from-tox.outputs.tox_value == ""
+        if: ${{ steps.python-version-from-tox.outputs.tox_value }} == ''
         with:
           python-version: ${{ env.default_python }}
 
