@@ -1,0 +1,83 @@
+---
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2024 The Linux Foundation
+
+# Extracts a value from a TOX configuration file (tox.ini)
+name: "📦 Extract TOX Configuration Value"
+
+inputs:
+  # Mandatory
+  TOX_KEY:
+    description: "Key to search in tox.ini file"
+    type: string
+    required: true
+  # Optional
+  TOX_CONFIG_PATH:
+    description: "Path to tox.ini configuration file"
+    type: string
+    required: false
+    default: "tox.ini"
+  TOX_ENVIRONMENT:
+    description: "TOX environment to query"
+    type: string
+    required: false
+  AWK_COMMAND:
+    description: "AWK command to manipulate returned value"
+    type: string
+    required: false
+  SED_COMMAND:
+    description: "SED command to manipulate returned value"
+    type: string
+    required: false
+
+outputs:
+  TOX_VALUE:
+    description: "Value extracted using input/query parameters"
+    value: ${{ steps.parse-tox.outputs.value }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Parse TOX configuration file: ${{ inputs.TOX_FILE_PATH }}"
+      id: parse-tox
+      shell: bash
+      run: |
+        # 🔍 Parse TOX configuration file
+
+        TOX_CMD=$(which tox)
+        if [ ! -x $PIP_CMD ]; then
+          if ! (pip install --upgrade --disable-pip-version-check -q tox > /dev/null); then
+            echo "Unable to find/install tox command ❌"; exit 1
+          else
+            echo "Successfully installed tox ✅"
+          fi
+          TOX_CMD=$(which tox)
+        fi
+
+        # If optional inputs are specified, add the necessary commands, etc.
+        if [ -n ${{ inputs.TOX_ENVIRONMENT }} ]; then
+          TOX_ENV_STRING="-e${{ inputs.TOX_ENVIRONMENT }}"
+        fi
+        if [ -n ${{ inputs.AWK_COMMAND }} ]; then
+          AWK_STRING="| ${{ inputs.AWK_STRING }}"
+        fi
+        if [ -n ${{ inputs.SED_COMMAND }} ]; then
+          SED_STRING="| ${{ inputs.SED_STRING }}"
+        fi
+
+        # Build shell command
+        # e.g. tox config -c docs/tox.ini -edocs | grep base_python | awk '{print $3}' | sed "s:python::g"
+        TOX_COMMAND="$TOX_CMD config -c ${{ inputs.TOX_CONFIG_PATH }} $TOX_ENV_STRING"
+
+        echo "TOX command: $TOX_COMMAND"
+        echo "Full shell command: $TOX_COMMAND $AWK_STRING $SED_STRING"
+        RETURN_VALUE=$($TOX_COMMAND $AWK_STRING $SED_STRING)
+
+        # Report/return results
+        if [ -z "$RETURN_VALUE" ]; then
+          echo "Query failed; empty return value ❌"
+        else
+          echo "Returning value: $RETURN_VALUE ✅"
+        fi
+        echo "tox_value=$RETURN_VALUE" >> "$GITHUB_ENV"
+        echo "tox_value=$RETURN_VALUE" >> "$GITHUB_OUTPUT"
