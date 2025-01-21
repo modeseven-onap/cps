@@ -76,8 +76,8 @@ jobs:
           tox_key: "base_python"
           tox_config_path: "docs/tox.ini"
           tox_environment: "docs"
-          awk_command: "awk '{print $3}'"
-          sed_command: "sed 's:python::g'"
+          awk_command: 'awk ''{print $3}'''
+          sed_command: 'sed ''s:python::g'''
 
       # yamllint disable-line rule:line-length
       - uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c # v5.0.0
