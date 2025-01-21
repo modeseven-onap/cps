@@ -19,10 +19,6 @@ on:
         description: "RTD API user token"
         required: true
 
-concurrency:
-        group: ${{ github.workflow }}-${{ github.ref }}
-        cancel-in-progress: true
-
 env:
   READTHEDOCS_FOUND: true
   TOX_ENVS: docs,docs-linkcheck
