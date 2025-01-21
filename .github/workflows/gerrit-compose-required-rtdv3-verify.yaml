@@ -60,7 +60,7 @@ jobs:
         id: setup-python-from-tox
         if: steps.python-version-from-tox.outputs.extracted_string != ''
         with:
-          python-version: steps.python-version-from-tox.outputs.tox_value
+          python-version: "${{ steps.python-version-from-tox.outputs.extracted_string }}"
 
       - name: Install Python [DEFAULT]
         # yamllint disable-line rule:line-length
@@ -68,7 +68,7 @@ jobs:
         id: setup-default-python
         if: steps.python-version-from-tox.outputs.extracted_string == ''
         with:
-          python-version: env.default_python
+          python-version: "${{ env.default_python }}"
 
       - name: Install graphviz
         # yamllint disable-line rule:line-length
