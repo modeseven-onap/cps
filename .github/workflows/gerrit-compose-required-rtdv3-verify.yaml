@@ -32,18 +32,7 @@ jobs:
   rtd-validation:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      # yamllint disable-line rule:line-length
-      - uses: ./.github/actions/tox-extract-config-action
-        id: get-python
-        with:
-          # tox config -c docs/tox.ini -edocs | grep base_python | awk '{print $3}' | sed "s:python::g"
-          tox_key: "base_python"
-          tox_config_path: "docs/tox.ini"
-          tox_environment: "docs"
-          awk_command: "awk '{print $3}'"
-          sed_command: "sed 's:python::g'"
+      # - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Gerrit Checkout
         # yamllint disable-line rule:line-length
@@ -59,7 +48,7 @@ jobs:
       - uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c # v5.0.0
         id: setup-python
         with:
-          python-version: ${{ steps.get-python.outputs.tox_value }}
+          python-version: "3.8"
 
       - name: Install graphviz
         # yamllint disable-line rule:line-length
@@ -78,6 +67,24 @@ jobs:
           pip install lftools 'niet~=1.4.2' 'cryptography<3.4' yq tox
           # urllib3 needs to be pinned to avoid timeouts
           pip install --upgrade urllib3~=1.26.15
+
+      # yamllint disable-line rule:line-length
+      - uses: ./.github/actions/tox-extract-config-action
+        id: get-python
+        with:
+          # tox config -c docs/tox.ini -edocs | grep base_python | awk '{print $3}' | sed "s:python::g"
+          tox_key: "base_python"
+          tox_config_path: "docs/tox.ini"
+          tox_environment: "docs"
+          awk_command: "awk '{print $3}'"
+          sed_command: "sed 's:python::g'"
+
+      # yamllint disable-line rule:line-length
+      - uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c # v5.0.0
+        id: setup-python
+        with:
+          python-version: ${{ steps.get-python.outputs.tox_value }}
+
       - name: Running tox
         # yamllint disable rule:line-length
         if: ${{ env.READTHEDOCS_FOUND == 'true' }}
