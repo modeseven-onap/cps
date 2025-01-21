@@ -35,7 +35,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       # yamllint disable-line rule:line-length
-      - uses: ./.github/actions/automatic-tests@master
+      - uses: ./.github/actions/automatic-tests
         id: get-python
         with:
           # tox config -c docs/tox.ini -edocs | grep base_python | awk '{print $3}' | sed "s:python::g"
