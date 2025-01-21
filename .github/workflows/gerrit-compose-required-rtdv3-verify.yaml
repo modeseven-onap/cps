@@ -44,7 +44,8 @@ jobs:
           submodules: "true"
 
       # yamllint disable-line rule:line-length
-      - uses: os-climate/osc-github-devops/.github/actions/file-grep-regex-action@main
+      - name: Extract Python version from TOX configuration
+        uses: os-climate/osc-github-devops/.github/actions/file-grep-regex-action@main
         id: python-version-from-tox
         with:
           # https://regex101.com/r/axPzef/1
@@ -53,17 +54,19 @@ jobs:
           filename: "docs/tox.ini"
           no_fail: "true"
 
-      # yamllint disable-line rule:line-length
-      - uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c # v5.0.0
+      - name: Install Python [from TOX.INI]
+        # yamllint disable-line rule:line-length
+        uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c # v5.0.0
         id: setup-python-from-tox
-        if: ${{ steps.python-version-from-tox.outputs.tox_value }} != ''
+        if: steps.python-version-from-tox.outputs.tox_value != ''
         with:
           python-version: ${{ steps.python-version-from-tox.outputs.tox_value }}
 
-      # yamllint disable-line rule:line-length
-      - uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c # v5.0.0
+      - name: Install Python [DEFAULT]
+        # yamllint disable-line rule:line-length
+        uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c # v5.0.0
         id: setup-default-python
-        if: ${{ steps.python-version-from-tox.outputs.tox_value }} == ''
+        if: steps.python-version-from-tox.outputs.tox_value == ''
         with:
           python-version: ${{ env.default_python }}
 
