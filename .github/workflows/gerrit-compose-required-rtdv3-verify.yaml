@@ -44,7 +44,7 @@ jobs:
           submodules: "true"
 
       # yamllint disable-line rule:line-length
-      - name: Extract Python version from TOX configuration
+      - name: Get Python version from TOX configuration
         uses: os-climate/osc-github-devops/.github/actions/file-grep-regex-action@main
         id: python-version-from-tox
         with:
@@ -54,7 +54,7 @@ jobs:
           filename: "docs/tox.ini"
           no_fail: "true"
 
-      - name: Install Python [from TOX.INI]
+      - name: Setup Python [from TOX.INI]
         # yamllint disable-line rule:line-length
         uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c # v5.0.0
         id: setup-python-from-tox
@@ -62,7 +62,7 @@ jobs:
         with:
           python-version: "${{ steps.python-version-from-tox.outputs.extracted_string }}"
 
-      - name: Install Python [DEFAULT]
+      - name: Setup Python [DEFAULT]
         # yamllint disable-line rule:line-length
         uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c # v5.0.0
         id: setup-default-python
@@ -84,9 +84,9 @@ jobs:
         if: ${{ env.READTHEDOCS_FOUND == 'true' }}
         run: |
           python -m pip install --upgrade pip
-          pip install lftools 'niet~=1.4.2' 'cryptography<3.4' yq tox
+          pip --disable-pip-version-check install lftools 'niet~=1.4.2' 'cryptography<3.4' yq tox
           # urllib3 needs to be pinned to avoid timeouts
-          pip install --upgrade urllib3~=1.26.15
+          pip --disable-pip-version-check install --disable-pip-version-check --upgrade urllib3~=1.26.15
 
       - name: Running tox
         # yamllint disable rule:line-length
