@@ -54,16 +54,13 @@ runs:
           exit 1
         fi
 
-        TOX_CMD=$(which tox)
-        if [ ! -x "$TOX_CMD" ]; then
-          "$PYTHON_CMD" -m venv /tmp/tox
-          if ! (pip install --upgrade --disable-pip-version-check -q tox > /dev/null); then
-            echo "Unable to use pip to install tox command ❌"; exit 1
-          else
-            echo "Successfully installed tox in virtual environment ✅"
-          fi
-          TOX_CMD=$(which tox)
+        "$PYTHON_CMD" -m venv /tmp/tox
+        if ! (pip install --upgrade --disable-pip-version-check -q tox > /dev/null); then
+          echo "Unable to use pip to install tox command ❌"; exit 1
+        else
+          echo "Successfully installed tox in virtual environment ✅"
         fi
+        TOX_CMD=$(which tox)
 
         # Process optional inputs
         if [ -n ${{ inputs.TOX_ENVIRONMENT }} ]; then
