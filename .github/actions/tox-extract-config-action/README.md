@@ -24,8 +24,8 @@ steps:
           tox_key: "base_python"
           tox_config_path: "docs/tox.ini"
           tox_environment: "docs"
-          awk_command: "awk '{print $3}'"
-          sed_command: "sed 's:python::g'"
+          awk_args: '{print $3}'
+          sed_args: 's:python::g'
 ```
 
 ## Inputs
@@ -37,8 +37,8 @@ steps:
 | TOX_KEY         | True     | N/A     | The key for which to find/return a value |
 | TOX_CONFIG_PATH | False    | tox.ini | Uses tox.ini at top level of repository  |
 | TOX_ENVIRONMENT | False    | None    | Defaults to top level stanza             |
-| AWK_COMMAND     | False    | None    | Full shell awk command to run after tox  |
-| SED_COMMAND     | False    | None    | Full shell command to run after awk      |
+| AWK_ARGS        | False    | None    | Arguments to awk command (run after tox) |
+| SED_ARGS        | False    | None    | Arguments to sed command (run after tox) |
 
 <!-- markdownlint-enable MD013 -->
 
