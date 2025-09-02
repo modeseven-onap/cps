@@ -1,0 +1,56 @@
+---
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2025 The Linux Foundation
+
+name: "🔑 Generate PQCA CBOM"
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cbom-scan:
+    name: "Generate PQCA CBOM"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    timeout-minutes: 30 # Set this timeout value as needed
+    steps:
+
+      # Harden the runner used by this workflow
+      # yamllint disable-line rule:line-length
+      - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911  # v2.13.0
+        with:
+          egress-policy: audit
+
+      - name: Checkout repository
+        # yamllint disable-line rule:line-length
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Build with Maven
+        # When scanning Java code, the build should be completed beforehand
+        run: mvn -B clean package -DskipTests
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create CBOM
+        # yamllint disable-line rule:line-length
+        uses: PQCA/cbomkit-action@a13ffe2a31c50dcc222ecc49d79897f5acff6d14 # v2.1.0
+        id: cbom
+        env:
+          CBOMKIT_LANGUAGES: java, python # or java or python
+
+      - name: Commit changes to new branch
+        # Allows persisting the CBOMs after job completion and
+        # sharing them with another job in the same workflow.
+        uses: actions/upload-artifact@v4
+        with: 
+          name: "CBOM"
+          path: ${{ steps.cbom.outputs.pattern }}
+          if-no-files-found: warn 
